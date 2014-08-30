@@ -615,21 +615,40 @@ def lmi_defringe(imlist, filts=["SDSS-Z"], fkey="FILTER", skybkg="SKYBKG", skysu
 			
 ##########################################################################
 
-def lmi_fullnight(imlist, outf):
+# set clobber to True to rerun already processed frames
+def lmi_fullnight(imlist, outf, ftype='SKY FLAT', clobber=False):
 
+	# create calibration files
 	print '\n\t* * * {} * * *'.format('lmi_cals')
-	lmi_cals(imlist, dobpm=False, ftype='SKY FLAT')
+	lmi_cals(imlist, dobpm=False, ftype=ftype)
+	done_cals = {}
+	
+	
+	# calibrate science frames
 	print '\n\t* * * {} * * *'.format('lmi_detrend')
 	lmi_detrend(imlist)
+	
+	# defringe science frames
 	print '\n\t* * * {} * * *'.format('lmi_defringe')
 	lmi_defringe("fbplmi.????.fits")
+	
+	# set corrected WCS keywords
 	print '\n\t* * * {} * * *'.format('lmi_astrom')
 	lmi_astrom("Flmi.????.fits")
+	
+	# get nightly statistics
 	print '\n\t* * * {} * * *'.format('lmi_stats')
 	lmi_stats("Flmi.????.fits", outf)
+	
+	# plot stats get imdict for coaddition
 	print '\n\t* * * {} * * *'.format('lmi_plots')
 	imdict = lmi_plots("Flmi.????.fits", outf)
-	raw_input("Hit return once default.swarp has been copied to working directory.")
+	
+	# check for default.swarp.  this file is required to propogate keywords to coadded files.
+	while not os.path.exists("./default.swarp"):
+		raw_input("\nWarning: default.swarp has not been copied to the working directory.  Hit return once the file has been copied.")
+	
+	# coadd images
 	print '\n\t* * * {} * * *'.format('lmi_coadd')
 	for obj in imdict:
 		for filt in imdict[obj]:
