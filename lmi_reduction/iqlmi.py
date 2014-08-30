@@ -629,10 +629,11 @@ def lmi_fullnight(imlist, outf):
 	lmi_stats("Flmi.????.fits", outf)
 	print '\n\t* * * {} * * *'.format('lmi_plots')
 	imdict = lmi_plots("Flmi.????.fits", outf)
+	raw_input("Hit return once default.swarp has been copied to working directory.")
 	print '\n\t* * * {} * * *'.format('lmi_coadd')
 	for obj in imdict:
 		for filt in imdict[obj]:
-				lmi_coadd(obj, filt, align=yes)
+			lmi_coadd(obj, filt, align=yes)
 	plt.show()
 
 	return
