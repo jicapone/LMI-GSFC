@@ -2,7 +2,7 @@
 
 
 # sandbox directory
-sandbox
+sandbox/*
 
 # Compiled source #
 ###################
