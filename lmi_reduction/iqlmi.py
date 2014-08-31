@@ -9,7 +9,8 @@ import astropy.io.fits as pyfits
 import astropy.coordinates
 from astropy.time import Time
 import numpy as np
-import glob, os, shutil
+import os, shutil
+from glob import glob
 import matplotlib.pylab as plt
 import scipy.optimize as spo
 from matplotlib.lines import Line2D
@@ -106,12 +107,11 @@ def preproc(image, fkey="FILTER", ppre="p", bkey="BIASSEC", tkey="TRIMSEC", clob
 	
 #############################################################################
 
-def lmi_cals(imlist, dobias=yes, dobpm=yes, doflats=yes, btype="BIAS", ftype="SKY FLAT", fkey="FILTER", ppre="p", bkey="BIASSEC", tkey="TRIMSEC", bfile="Bias.fits", bpmfile="BPM.pl", bpre="b", flatpre="Flat", clobber=globclob, verbose=globver):
+def lmi_cals(images, dobias=yes, dobpm=yes, doflats=yes, btype="BIAS", ftype="SKY FLAT", fkey="FILTER", ppre="p", bkey="BIASSEC", tkey="TRIMSEC", bfile="Bias.fits", bpmfile="BPM.pl", bpre="b", flatpre="Flat", clobber=globclob, verbose=globver):
 
 	'''Process bias and twilight flats, creating relevant calibration files for
 	   nightly processing of LMI data.'''
-	   
-	images = glob.glob(imlist)   
+
 	blist = []; flist = []
 	
 	# Preprocess all the relevant images
@@ -249,18 +249,17 @@ def lmi_cals(imlist, dobias=yes, dobpm=yes, doflats=yes, btype="BIAS", ftype="SK
 	
 ###########################################################################
 
-def lmi_detrend(imlist, otype="OBJECT", ppre="p", bkey="BIASSEC", tkey="TRIMSEC", bpre="b", bfile="Bias.fits", fkey="FILTER", fpre="f", flatpre="Flat", skybkg="SKYBKG", skysub="SKYSUB", skysig="SKYSIG", fpfx="F", clobber=globclob, verbose=globver):
+def lmi_detrend(images, otype="OBJECT", ppre="p", bkey="BIASSEC", tkey="TRIMSEC", bpre="b", bfile="Bias.fits", fkey="FILTER", fpre="f", flatpre="Flat", skybkg="SKYBKG", skysub="SKYSUB", skysig="SKYSIG", fpfx="F", clobber=globclob, verbose=globver):
 
 	'''Identify science frames, pre-process, subtract bias, divide by flat, 
 	   and correct for non-linearity.'''
 	   
-	images = glob.glob(imlist)   
 	images.sort()
 	
 	# Loop through all images
 	for im in images:
-		if os.path.isfile( fpfx + im ):
-			continue
+		#if os.path.isfile( fpfx + im ):
+		#	continue
 
 		hdr = pyfits.getheader(im)
 		if hdr['OBSTYPE'] == otype:
@@ -308,95 +307,96 @@ def lmi_lincor(image):
 	
 ###########################################################################
 
-def lmi_astrom(imlist, wpre="w"):
+def lmi_astrom(images, wpre="w"):
 
 	'''WCS fits for images.'''
 	
-	images = glob.glob(imlist)   
 	images.sort()
 	
-	# Loop through all images
-	for image in images:
-		
-		print image
+	if len(images) != 0:
 
-		# First need to update a bunch of keywords
-		fimg = pyfits.open(image, mode="update")
-		fimg[0].header["PIXSCALE"] = LMIPIXSCALE
-		fimg[0].header["PIXSCAL1"] = LMIPIXSCALE
-		fimg[0].header["PIXSCAL2"] = LMIPIXSCALE
-		fimg[0].header["CTYPE1"] = "RA---TAN"
-		fimg[0].header["CTYPE2"] = "DEC--TAN"
-		fimg[0].header["WCSDIM"] = 2
-		fimg[0].header["WAT0_001"] = "system=image"
-		fimg[0].header["WAT1_001"] = "wtype=tan axtype=ra"
-		fimg[0].header["WAT2_001"] = "wtype=tan axtype=dec"
-		fimg[0].header["LTM1_1"] = 1.0
-		fimg[0].header["LTM2_2"] = 1.0
-	
-		nax1 = fimg[0].header["NAXIS1"]; nax2 = fimg[0].header["NAXIS2"]
-		fimg[0].header["CRPIX1"] = nax1 / 2
-		fimg[0].header["CRPIX2"] = nax2 / 2
-	
-		ra = fimg[0].header["RA"]; dec = fimg[0].header["DEC"]
-		coo = astropy.coordinates.ICRS("%sh%sm%ss %sd%sm%ss" % (ra.split(":")[0],
-									   ra.split(":")[1], ra.split(":")[2],
-									   dec.split(":")[0], dec.split(":")[1],
-									   dec.split(":")[2]))
-		fimg[0].header["CRVAL1"] = coo.ra.deg
-		fimg[0].header["CRVAL2"] = coo.dec.deg
-	
-		fimg[0].header["CD1_1"] = -LMIPIXSCALE / 3600.0
-		fimg[0].header["CD1_2"] = 0.0
-		fimg[0].header["CD2_1"] = 0.0
-		fimg[0].header["CD2_2"] = LMIPIXSCALE / 3600.0
-		del fimg[0].header["CTYPE1U"]
-		del fimg[0].header["CRPIX1U"]
-		del fimg[0].header["CRVAL1U"]
-		del fimg[0].header["CD1_1U"]
-		del fimg[0].header["CFINT1"]
-		del fimg[0].header["CTYPE2U"]
-		del fimg[0].header["CRPIX2U"]
-		del fimg[0].header["CRVAL2U"]
-		del fimg[0].header["CD2_2U"]
-		del fimg[0].header["CD1_2U"]
-		del fimg[0].header["CD2_1U"]
-		del fimg[0].header["CFINT2"]
-		
-		if os.path.exists("%s%s" % (wpre, image)):
-			os.remove("%s%s" % (wpre, image))
-		
-		#fimg.writeto("%s%s" % (wpre, image))
-		fimg.flush()
-		fimg.close()
-		
-		#os.system("python %s %s%s" % (ASTROMCMD, wpre, image))  
+		# Loop through all images
+		for image in images:
+			
+			print image
 
-		# Setup configuration files
-		o1 = open("daofind.param", "w")
-		o1.write("NUMBER\nXWIN_IMAGE\nYWIN_IMAGE\nMAG_AUTO\nFLAGS\nA_IMAGE\nB_IMAGE\n")
-		o1.write("ELONGATION\nFWHM_IMAGE\nXWIN_WORLD\nYWIN_WORLD\n")
-		o1.write("ERRAWIN_IMAGE\nERRBWIN_IMAGE\nERRTHETAWIN_IMAGE\nERRAWIN_WORLD\n")
-		o1.write("ERRBWIN_WORLD\nERRTHETAWIN_WORLD\nFLUX_AUTO\nFLUX_RADIUS\n")
-		o1.write("FLUXERR_AUTO")
-		o1.close()
+			# First need to update a bunch of keywords
+			fimg = pyfits.open(image, mode="update")
+			fimg[0].header["PIXSCALE"] = LMIPIXSCALE
+			fimg[0].header["PIXSCAL1"] = LMIPIXSCALE
+			fimg[0].header["PIXSCAL2"] = LMIPIXSCALE
+			fimg[0].header["CTYPE1"] = "RA---TAN"
+			fimg[0].header["CTYPE2"] = "DEC--TAN"
+			fimg[0].header["WCSDIM"] = 2
+			fimg[0].header["WAT0_001"] = "system=image"
+			fimg[0].header["WAT1_001"] = "wtype=tan axtype=ra"
+			fimg[0].header["WAT2_001"] = "wtype=tan axtype=dec"
+			fimg[0].header["LTM1_1"] = 1.0
+			fimg[0].header["LTM2_2"] = 1.0
 		
-		o2 = open("default.conv", "w")
-		o2.write("CONV NORM\n# 5x5 convolution mask of a gaussian PSF with FWHM = 3.0 pixels.\n0.092163 0.221178 0.296069 0.221178 0.092163\n0.221178 0.530797 0.710525 0.530797 0.221178\n0.296069 0.710525 0.951108 0.710525 0.296069\n0.221178 0.530797 0.710525 0.530797 0.221178\n0.092163 0.221178 0.296069 0.221178 0.092163")
-		o2.close()
+			nax1 = fimg[0].header["NAXIS1"]; nax2 = fimg[0].header["NAXIS2"]
+			fimg[0].header["CRPIX1"] = nax1 / 2
+			fimg[0].header["CRPIX2"] = nax2 / 2
 		
-		# Run Sextractor
-		os.system("sex -CATALOG_NAME %s.cat -CATALOG_TYPE FITS_LDAC -PARAMETERS_NAME daofind.param -DETECT_THRESH 3.0 -ANALYSIS_THRESH 3.0 -GAIN_KEY GAIN -PIXEL_SCALE 0 %s" % (image[:-5], image))
+			ra = fimg[0].header["RA"]; dec = fimg[0].header["DEC"]
+			coo = astropy.coordinates.ICRS("%sh%sm%ss %sd%sm%ss" % (ra.split(":")[0],
+										   ra.split(":")[1], ra.split(":")[2],
+										   dec.split(":")[0], dec.split(":")[1],
+										   dec.split(":")[2]))
+			fimg[0].header["CRVAL1"] = coo.ra.deg
+			fimg[0].header["CRVAL2"] = coo.dec.deg
 		
-	# Run scamp for alignment
-	imlist = " ".join(images)
-	os.system("scamp -ASTREF_CATALOG 2MASS -CHECKPLOT_DEV NULL -SOLVE_PHOTOM N %s" % imlist.replace(".fits", ".cat"))
-	
-	# Update header info
-	for image in images:
-		os.system("missfits %s" % image)
-		os.remove("%s.back" % image)
-		os.remove("%s.head" % image[:-5])
+			fimg[0].header["CD1_1"] = -LMIPIXSCALE / 3600.0
+			fimg[0].header["CD1_2"] = 0.0
+			fimg[0].header["CD2_1"] = 0.0
+			fimg[0].header["CD2_2"] = LMIPIXSCALE / 3600.0
+			del fimg[0].header["CTYPE1U"]
+			del fimg[0].header["CRPIX1U"]
+			del fimg[0].header["CRVAL1U"]
+			del fimg[0].header["CD1_1U"]
+			del fimg[0].header["CFINT1"]
+			del fimg[0].header["CTYPE2U"]
+			del fimg[0].header["CRPIX2U"]
+			del fimg[0].header["CRVAL2U"]
+			del fimg[0].header["CD2_2U"]
+			del fimg[0].header["CD1_2U"]
+			del fimg[0].header["CD2_1U"]
+			del fimg[0].header["CFINT2"]
+			
+			if os.path.exists("%s%s" % (wpre, image)):
+				os.remove("%s%s" % (wpre, image))
+			
+			#fimg.writeto("%s%s" % (wpre, image))
+			fimg.flush()
+			fimg.close()
+			
+			#os.system("python %s %s%s" % (ASTROMCMD, wpre, image))  
+
+			# Setup configuration files
+			o1 = open("daofind.param", "w")
+			o1.write("NUMBER\nXWIN_IMAGE\nYWIN_IMAGE\nMAG_AUTO\nFLAGS\nA_IMAGE\nB_IMAGE\n")
+			o1.write("ELONGATION\nFWHM_IMAGE\nXWIN_WORLD\nYWIN_WORLD\n")
+			o1.write("ERRAWIN_IMAGE\nERRBWIN_IMAGE\nERRTHETAWIN_IMAGE\nERRAWIN_WORLD\n")
+			o1.write("ERRBWIN_WORLD\nERRTHETAWIN_WORLD\nFLUX_AUTO\nFLUX_RADIUS\n")
+			o1.write("FLUXERR_AUTO")
+			o1.close()
+			
+			o2 = open("default.conv", "w")
+			o2.write("CONV NORM\n# 5x5 convolution mask of a gaussian PSF with FWHM = 3.0 pixels.\n0.092163 0.221178 0.296069 0.221178 0.092163\n0.221178 0.530797 0.710525 0.530797 0.221178\n0.296069 0.710525 0.951108 0.710525 0.296069\n0.221178 0.530797 0.710525 0.530797 0.221178\n0.092163 0.221178 0.296069 0.221178 0.092163")
+			o2.close()
+			
+			# Run Sextractor
+			os.system("sex -CATALOG_NAME %s.cat -CATALOG_TYPE FITS_LDAC -PARAMETERS_NAME daofind.param -DETECT_THRESH 3.0 -ANALYSIS_THRESH 3.0 -GAIN_KEY GAIN -PIXEL_SCALE 0 %s" % (image[:-5], image))
+			
+		# Run scamp for alignment
+		imlist = " ".join(images)
+		os.system("scamp -ASTREF_CATALOG 2MASS -CHECKPLOT_DEV NULL -SOLVE_PHOTOM N %s" % imlist.replace(".fits", ".cat"))
+		
+		# Update header info
+		for image in images:
+			os.system("missfits %s" % image)
+			os.remove("%s.back" % image)
+			os.remove("%s.head" % image[:-5])
 	
 	return
    
@@ -483,7 +483,7 @@ def lmi_coadd(object, filt, align=no):
 	
 	# Find the appropriate images
 	ims = []
-	allims = glob.glob("Flmi.????.fits")
+	allims = glob("Flmi.????.fits")
 	for im in allims:
 		h = pyfits.open(im)
 		if (h[0].header["OBJECT"].replace(' ','_') == object) and (h[0].header["FILTER"] == filt):
@@ -530,7 +530,7 @@ def lmi_stats(imlist, outf):
 
 	'''Basic image statistics.'''
 	
-	ims = glob.glob(imlist)
+	ims = glob(imlist)
 	ims.sort()
 	outfile = open(outf, "w")
 	
@@ -575,11 +575,10 @@ def lmi_stats(imlist, outf):
 	
 ##########################################################################
 
-def lmi_defringe(imlist, filts=["SDSS-Z"], fkey="FILTER", skybkg="SKYBKG", skysub="SKYSUB", fpfx="F"):
+def lmi_defringe(ims, filts=["SDSS-Z"], fkey="FILTER", skybkg="SKYBKG", skysub="SKYSUB", fpfx="F"):
 
 	'''Create and apply fringe frame.'''
 	
-	ims = glob.glob(imlist)
 	ims.sort()
 	
 	for filt in filts:
@@ -616,44 +615,73 @@ def lmi_defringe(imlist, filts=["SDSS-Z"], fkey="FILTER", skybkg="SKYBKG", skysu
 ##########################################################################
 
 # set clobber to True to rerun already processed frames
-def lmi_fullnight(imlist, outf, ftype='SKY FLAT', clobber=False):
+def lmi_fullnight(imlist, outf, do_all=True, ftype='SKY FLAT', otype="OBJECT", clobber=False):
 
-	# create calibration files
-	print '\n\t* * * {} * * *'.format('lmi_cals')
-	lmi_cals(imlist, dobpm=False, ftype=ftype)
-	done_cals = {}
+	# create array of file names
+	ims = glob(imlist)
+
+	# create calibration files if they don't exist
+	if (not os.path.exists('Bias.fits')) or clobber:
+		print '\n\t* * * {} * * *'.format('lmi_cals - bias')
+		lmi_cals(ims, dobpm=False, doflats=False)
+	if (len(glob('Flat*.fits'))==0) or clobber:
+		print '\n\t* * * {} * * *'.format('lmi_cals - flats')
+		lmi_cals(ims, dobpm=False, dobias=False, ftype=ftype)
 	
+	# look for science frames
+	oims = [] # files to-be-processed
+	if not clobber:
+		rims = glob('fbp'+imlist)
+		for i in range(len(rims)): rims[i] = rims[i][3:]
+		for im in ims:
+			if im not in rims:
+				hdr = pyfits.getheader(im)
+				if hdr['OBSTYPE'] == otype:
+					oims.append(im) # add unprocessed frame to list
+	else:
+		for im in ims:
+			hdr = pyfits.getheader(im)
+			if hdr['OBSTYPE'] == otype:
+				oims.append(im) # add frame to list
+
+	if len(oims):
+		
+		# calibrate science frames
+		print '\n\t* * * {} * * *'.format('lmi_detrend')
+		lmi_detrend(oims)
+		
+		# defringe science frames
+		print '\n\t* * * {} * * *'.format('lmi_defringe')
+		tims = []
+		for i in range(len(oims)): tims.append('fbp'+oims[i])
+		lmi_defringe(tims)
+		
+		# set corrected WCS keywords
+		print '\n\t* * * {} * * *'.format('lmi_astrom')
+		tims = []
+		for i in range(len(oims)): oims[i] = 'F'+oims[i]
+		lmi_astrom(tims)
 	
-	# calibrate science frames
-	print '\n\t* * * {} * * *'.format('lmi_detrend')
-	lmi_detrend(imlist)
-	
-	# defringe science frames
-	print '\n\t* * * {} * * *'.format('lmi_defringe')
-	lmi_defringe("fbplmi.????.fits")
-	
-	# set corrected WCS keywords
-	print '\n\t* * * {} * * *'.format('lmi_astrom')
-	lmi_astrom("Flmi.????.fits")
-	
-	# get nightly statistics
-	print '\n\t* * * {} * * *'.format('lmi_stats')
-	lmi_stats("Flmi.????.fits", outf)
-	
-	# plot stats get imdict for coaddition
-	print '\n\t* * * {} * * *'.format('lmi_plots')
-	imdict = lmi_plots("Flmi.????.fits", outf)
-	
-	# check for default.swarp.  this file is required to propogate keywords to coadded files.
-	while not os.path.exists("./default.swarp"):
-		raw_input("\nWarning: default.swarp has not been copied to the working directory.  Hit return once the file has been copied.")
-	
-	# coadd images
-	print '\n\t* * * {} * * *'.format('lmi_coadd')
-	for obj in imdict:
-		for filt in imdict[obj]:
-			lmi_coadd(obj, filt, align=yes)
-	plt.show()
+	if do_all:
+
+		# get nightly statistics
+		print '\n\t* * * {} * * *'.format('lmi_stats')
+		lmi_stats("Flmi.????.fits", outf)
+		
+		# plot stats get imdict for coaddition
+		print '\n\t* * * {} * * *'.format('lmi_plots')
+		imdict = lmi_plots("Flmi.????.fits", outf)
+		
+		# check for default.swarp.  this file is required to propogate keywords to coadded files.
+		while not os.path.exists("./default.swarp"):
+			raw_input("\nWarning: default.swarp has not been copied to the working directory.  Hit return once the file has been copied.")
+		
+		# coadd images
+		print '\n\t* * * {} * * *'.format('lmi_coadd')
+		for obj in imdict:
+			for filt in imdict[obj]:
+				lmi_coadd(obj, filt, align=yes)
+		plt.show()
 
 	return
 	
@@ -661,7 +689,7 @@ def lmi_fullnight(imlist, outf, ftype='SKY FLAT', clobber=False):
 
 def lmi_plots(imlist, dfile):
 
-	ims = glob.glob(imlist)
+	ims = glob(imlist)
 	imdict = {}
 	
 	for im in ims:
