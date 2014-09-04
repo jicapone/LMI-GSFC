@@ -54,7 +54,7 @@ def quickphot(fitsfile, filter, sigma=1.5, grbra=None, grbdec=None, grbsep=1.0):
 	#Run get_SEDs to get catalog/SED fit values for best match to the image coordinates
 	catfile = 'coords.cat'
 	os.system('export CDSCLIENT=http')
-	os.system('python /Users/vickitoy/Research/RATIR-GSFC/code/photometry/dependencies/get_SEDs.py '+imfile+ ' ' + filter + ' ' + catfile + ' 15 True False')
+	os.system('python /Users/jicapone/GitHub/RATIR-GSFC/code/photometry/dependencies/get_SEDs.py '+imfile+ ' ' + filter + ' ' + catfile + ' 15 True False')
 	#Unpacks magnitude values
 	[refra,refdec,u_mag,g_mag,r_mag,i_mag,
 		z_mag,y_mag,bigB_mag,bigV_mag,bigR_mag,
