@@ -1,5 +1,7 @@
 import numpy as np
 
+FILT_NAMES = ['SL-u','SL-g','SL-r','SL-i','SL-z','Yish']
+
 """
 fnout		= file name out
 objname		= string name
@@ -15,6 +17,8 @@ def gen_dither_file( fnout, objname, exptime, filts, nexp, max_dith=20, alt_filt
 		exptime = [exptime]
 	if type(filts) is not list:
 		filts = [filts]
+	if len(exptime) == 1:
+		exptime = np.ones(np.shape(filts)) * exptime[0]
 	if len(exptime) != len(filts):
 		print "Error: exptime and filts must have same length."
 		return 1
