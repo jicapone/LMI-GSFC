@@ -627,7 +627,7 @@ def lmi_fullnight(imlist, outf, do_all=True, ftype='SKY FLAT', otype="OBJECT", c
 	if (len(glob('Flat*.fits'))==0) or clobber:
 		print '\n\t* * * {} * * *'.format('lmi_cals - flats')
 		lmi_cals(ims, dobpm=False, dobias=False, ftype=ftype)
-	
+
 	# look for science frames
 	oims = [] # files to-be-processed
 	if not clobber:
@@ -649,17 +649,17 @@ def lmi_fullnight(imlist, outf, do_all=True, ftype='SKY FLAT', otype="OBJECT", c
 		# calibrate science frames
 		print '\n\t* * * {} * * *'.format('lmi_detrend')
 		lmi_detrend(oims)
-		
+
 		# defringe science frames
 		print '\n\t* * * {} * * *'.format('lmi_defringe')
 		tims = []
 		for i in range(len(oims)): tims.append('fbp'+oims[i])
 		lmi_defringe(tims)
-		
+
 		# set corrected WCS keywords
 		print '\n\t* * * {} * * *'.format('lmi_astrom')
 		tims = []
-		for i in range(len(oims)): oims[i] = 'F'+oims[i]
+		for i in range(len(oims)): tims.append('F'+oims[i])
 		lmi_astrom(tims)
 	
 	if do_all:
