@@ -1978,11 +1978,13 @@ def check_head(file,keys,extn=0):
 
         if type(keys)==StringType:
             key=keys
-            out=head.has_key(key)
+            #out=head.has_key(key)
+            out=key in head.keys()
         elif type(keys)==ListType:
             out=yes
             for key in keys:
-                if not head.has_key(key):
+                #if not head.has_key(key):
+                if key not in head:
                     out=no
                     break
         else:
@@ -2019,6 +2021,7 @@ def get_head(file,keys,extn=0,verbose=globver):
 
         if type(keys)==StringType:
             key=keys
+            #if head.has_key(key):
             if key in head.keys():
                 vals=head[key]
             else:
@@ -2027,6 +2030,7 @@ def get_head(file,keys,extn=0,verbose=globver):
                 vals=""
         elif type(keys)==ListType:
             for key in keys:
+                #if head.has_key(key):
                 if key in head.keys():
                     vals.append(head[key])
                 else:
