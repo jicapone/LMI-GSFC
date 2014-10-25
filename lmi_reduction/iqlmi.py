@@ -42,7 +42,7 @@ globclob=yes
 globver=yes
 
 NON_DECIMAL = re.compile(r'[^\d]+') # re set to remove non-digits
-LMIFILTS = ["U", "B", "V", "R", "I", "SDSS-G", "SDSS-R", "SDSS-I", "SDSS-Z", "SDSS-U"]
+LMIFILTS = ["U", "B", "V", "R", "VR", "I", "SDSS-G", "SDSS-R", "SDSS-I", "SDSS-Z", "SDSS-U"]
 LMIPIXSCALE = 0.240
 ASTROMCMD = "/Users/jicapone/GitHub/RATIR-GSFC/code/reduction/astrom/vlt_autoastrometry.py"
 FDICT = {"SDSS-U": "UMAG", "SDSS-G": "GMAG", "SDSS-R": "RMAG",
@@ -56,6 +56,7 @@ LMIGAIN = 2.95
 def preproc(image, fkey="FILTER", ppre="p", bkey="BIASSEC", tkey="TRIMSEC", clobber=globclob, verbose=globver):
 
 	'''Update header keywords, subtract overscan, and trim image.'''
+	print "preproc - {}".format(image)
 	
 	# Create 'FILTER' keyword
 	pyim = pyfits.open(image)
@@ -205,7 +206,7 @@ def lmi_cals(images, dobias=yes, dobpm=yes, doflats=yes, btype="BIAS", ftype="SK
 				hdr = pyfits.getheader(im)
 				if hdr[fkey] == filt:
 					flis.append("%s%s" % (bpre, im))
-					
+
 			if flis == []:
 				continue
 					
@@ -263,6 +264,8 @@ def lmi_detrend(images, otype="OBJECT", ppre="p", bkey="BIASSEC", tkey="TRIMSEC"
 
 		hdr = pyfits.getheader(im)
 		if hdr['OBSTYPE'] == otype:
+
+			print "detrend - {}".format(im)
 		
 			# Preprocess
 			preproc(im, fkey=fkey, ppre=ppre, bkey=bkey, tkey=tkey, clobber=clobber,
@@ -318,7 +321,7 @@ def lmi_astrom(images, wpre="w"):
 		# Loop through all images
 		for image in images:
 			
-			print image
+			print "astrom - {}".format(image)
 
 			# First need to update a bunch of keywords
 			fimg = pyfits.open(image, mode="update")
