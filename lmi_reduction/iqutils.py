@@ -2019,7 +2019,7 @@ def get_head(file,keys,extn=0,verbose=globver):
 
         if type(keys)==StringType:
             key=keys
-            if key in head:
+            if key in head.keys():
                 vals=head[key]
             else:
                 if verbose:
@@ -2027,7 +2027,7 @@ def get_head(file,keys,extn=0,verbose=globver):
                 vals=""
         elif type(keys)==ListType:
             for key in keys:
-                if key in head:
+                if key in head.keys():
                     vals.append(head[key])
                 else:
                     if verbose:
