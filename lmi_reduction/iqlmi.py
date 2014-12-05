@@ -692,6 +692,9 @@ def lmi_fullnight(imlist, outf, do_all=True, ftype='SKY FLAT', otype="OBJECT", c
 
 def lmi_plots(imlist, dfile):
 
+	# Turn interactive plotting off
+	plt.ioff()
+
 	ims = glob(imlist)
 	imdict = {}
 	
@@ -748,18 +751,26 @@ def lmi_plots(imlist, dfile):
 	c4 = Line2D(range(1), range(1), color="white", marker='o', mfc="blue")
 	c5 = Line2D(range(1), range(1), color="white", marker='o', mfc="black")
 	ax1.legend([c1, c2, c3, c4, c5], ["u'", "g'", "r'", "i'", "z'"], numpoints=1)
-
+	f1.savefig("./night_seeing.png")
+	plt.close(f1)
 	
 	ax2.set_title("Nightly Sky Background")
 	ax2.set_xlabel("MJD")
 	ax2.set_ylabel(r"Sky Background (pixel$^{-1}$ s$^{-1}$)")
 	ax2.legend([c1, c2, c3, c4, c5], ["u'", "g'", "r'", "i'", "z'"], numpoints=1)
+	f2.savefig("./night_skyback.png")
+	plt.close(f2)
 
 	ax3.set_title("Nightly Limiting Magnitude (per 100 s exposure)")
 	ax3.set_xlabel("MJD")
 	ax3.set_ylabel("Limiting Magnitude (100 s exposure)")
 	ax3.legend([c1, c2, c3, c4, c5], ["u'", "g'", "r'", "i'", "z'"], numpoints=1)
 	ax3.set_ylim(25.0, 20.0)
+	f3.savefig("./night_limmag.png")
+	plt.close(f3)
+
+	# turn interactive plotting on
+	plt.ion()
 
 	return imdict
 	
