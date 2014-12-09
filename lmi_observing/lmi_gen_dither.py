@@ -24,6 +24,7 @@ def tile_2x2( fnout, objname, exptime, filts, nsets, max_dith, alt_filts=True ):
 
     # generate random dither offsets
     dithers = np.random.rand( 5*nsets, 2 ) * 2 * max_dith - max_dith
+    dithers[-1] = np.array([0,0])
 
     """
     add in tiled field offsets:
@@ -33,11 +34,11 @@ def tile_2x2( fnout, objname, exptime, filts, nsets, max_dith, alt_filts=True ):
         - field #3: -6', +6'
         - field #4: -6', -6'
     """
-    fields_off = np.array( [[ 0.,  0.],
-                            [ 6.,  6.],
+    fields_off = np.array( [[ 6.,  6.],
                             [ 6., -6.],
                             [-6.,  6.],
-                            [-6., -6.]])
+                            [-6., -6.],
+                            [ 0.,  0.]])
     fields_off *= 60
 
     i = 0
@@ -92,6 +93,7 @@ def gen_dither_file( fnout, objname, exptime, filts, nexp, max_dith=20, alt_filt
 
     # generate random dither offsets
     dithers = np.random.rand( nexp, 2 ) * 2 * max_dith - max_dith
+    dithers[-1] = np.array([0,0])
 
     # write to file
     maxexpl = len('{:.1f}'.format(int(np.ceil(np.max(exptime)))))
