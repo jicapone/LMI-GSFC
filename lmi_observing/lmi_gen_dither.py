@@ -8,7 +8,7 @@ def tile_2x2( fnout, objname, exptime, filts, nsets, max_dith, alt_filts=True ):
     fout = open(fnout, 'w')
     
     # write dither header
-    fout.write("#title=true ra=false dec=false exposureTime=true numExposures=false filter=true muRA=false muDec=false epoch=false dRA=false dDec=false rotatorPA=false rotatorFrame=false xi=true eta=true comment=true\n#\n")
+    fout.write("#title=true ra=false dec=false exposureTime=true numExposures=false filter=true muRA=false muDec=false epoch=false dRA=false dDec=false rotatorPA=false rotatorFrame=false xi=true eta=true comment=true commandOption=false\n#\n")
     
     # format and check args
     if type(exptime) is not list:
@@ -77,7 +77,7 @@ def gen_dither_file( fnout, objname, exptime, filts, nexp, max_dith=20, alt_filt
     fout = open(fnout, 'w')
     
     # write dither header
-    fout.write("#title=true ra=false dec=false exposureTime=true numExposures=false filter=true muRA=false muDec=false epoch=false dRA=false dDec=false rotatorPA=false rotatorFrame=false xi=true eta=true comment=true\n#\n")
+    fout.write("#title=true ra=false dec=false exposureTime=true numExposures=false filter=true muRA=false muDec=false epoch=false dRA=false dDec=false rotatorPA=false rotatorFrame=false xi=true eta=true comment=true commandOption=false\n#\n")
     
     # format and check args
     if type(exptime) is not list:
